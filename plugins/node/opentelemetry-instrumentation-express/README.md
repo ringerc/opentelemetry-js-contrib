@@ -51,6 +51,8 @@ See [examples](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/m
 
 Because of the way express works, it's hard to correctly compute the time taken by asynchronous middlewares and request handlers. For this reason, the time you'll see reported for asynchronous middlewares and request handlers still only represent the synchronous execution time, and **not** any asynchronous work.
 
+Express auto-instrumentation cannot instrument the Express modules if they are bundled by `esbuild` or similar.
+
 ### Express Instrumentation Options
 
 Express instrumentation has few options available to choose from. You can set the following:
@@ -134,6 +136,13 @@ const expressInstrumentation = new ExpressInstrumentation({
   }
 });
 ```
+
+## Troubleshooting
+
+### No spans emitted for Express, hooks not firing?
+
+1. Make sure you really loaded the express auto-instrumentation before any of your application code. Use `node --require` to load your tracing script, or import it before *anything* else in your app's entry-point script.
+2. Ensure that the express module is not being bundled. If you use a bundler like `esbuild`, you must add an argument `--external:express` - then ensure the `node_modules` directory available at runtime includes express and its dependencies. If your express server is bundled then ythis this module cannot auto-instrument it.
 
 ## Useful links
 
